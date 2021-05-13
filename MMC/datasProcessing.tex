@@ -1,0 +1,144 @@
+\documentclass[letterpaper]{article}
+
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{graphicx}
+
+\usepackage[top=1.3in, bottom=1.5in, left=1in, right=1in]{geometry}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float} % Use [H] to force figure placement
+
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+
+% If you're new to latex, pagewrapping will be your enemy, both in terms of getting floating images/tables to appear on the correct page, and in terms of attractive text line breaking.
+% Two tips to help deal with this:
+%   - The ``float'' package above allows you to use the [H] option on figures, which forces them to appear in EXACTLY that spot in the docutment. This can be useful to tune things by hand
+%   - If latex wants to break apart your text in an awkward way, try wrapping it in a minipage environment. This especially useful for keeping bulleted lists together, as latex often likes to break them across pages.
+
+
+% Make the bulleted lists use dashes
+\renewcommand{\labelitemi}{\normalfont\bfseries\textendash}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\title{Title}
+
+\author{}
+\date{\today}
+
+\begin{document}
+
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{2126824}
+\rhead{ Page \thepage\ of \pageref{LastPage}}
+\rfoot{}    
+\cfoot{}
+\lfoot{}
+\fancypagestyle{plain}{
+  \lhead{Team \#number}
+  \rhead{ Page \thepage\ of \pageref{LastPage}}
+  \rfoot{}    
+  \cfoot{}
+  \lfoot{}
+}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.0pt}
+%\headrulewidth 0.4pt
+%\footrulewidth 0 pt
+
+\maketitle
+
+\section{Data Breakdown}
+The data set used for our modeling consisted of $4,440$ reported sightings by the public. Each report contains the following fields:
+
+
+\begin{itemize}
+    \item GlobalID: unique identifier for the report
+    \item Detection Date: date of sighting 
+    \item Notes: description of observation from the reporter
+    \item Lab Status: Takes one of 4 possible values
+    \begin{itemize}
+        \item Positive ID: Indicates the report has been verified by the lab
+        \item Negative ID: Indicates the lab has confirmed the report to be false
+        \item Unverified: Indicates no determination could be made by the lab regarding the validity of the report, due to lack of information
+        \item Unprocessed: Indicates the sighting has not yet been classified
+    \end{itemize}
+    \item Lab Comments: information added to the lab after investigation
+    \item Submission Date: date report was submitted
+    \item Latitude Coordinate
+    \item Longitude Coordinate
+    
+\end{itemize}
+
+
+\begin{flushleft}
+Also provided are pictures of reported sightings, when submitted by the reporter.
+
+Our first step in analyzing the data is to sort it by Lab Status to provide insight regarding the distribution of the data and to allow us to identify factors that lead to reports being placed in each category. The vast majority of data points fall into the Negative ID or Unverified category (47\% and 53\%, respectively), while a much smaller portion - $.32\%$ - are categorized as Positive ID's.
+
+\end{flushleft}
+
+\begin{center}
+\captionof{table}{} \label{tab:title} 
+ \begin{tabular}{||c c c c c||} 
+ \hline
+ \multicolumn{5}{|c|}{Distribution of Data by ID Type} \\
+ \hline
+ Category & Positive ID & Negative ID & Unverified & Unprocessed  \\ [0.5ex] 
+ \hline
+ Number of Reports & 14 & 2069 & 2342 & 15 \\ 
+ \hline
+\% of Reports & .3182\% & 47.0227\% & 53.2273\% & .3409\% \\
+
+ \hline
+\end{tabular}
+
+\end{center}
+
+\begin{flushleft}
+In order to discover trends in the data points over time, we then sorted the data in each ID group by Detection Date. In the process of sorting by time, several reports with no Detection Date were identified; others had impossible Detection Dates, such as June 21st of the year 515.To ascertain how much data was invalid in this way, we analyzed the number of the reports, by category, before specified years (Table 2). 
+\end{flushleft}
+
+\begin{center}
+\captionof{table}{} \label{tab:title} 
+ \begin{tabular}{||c c c c c||} 
+ \hline
+ \multicolumn{5}{|c|}{Distribution of Data by Detection Date and ID Type} \\
+ \hline
+ Category & Positive ID & Negative ID & Unverified & Unprocessed  \\ [0.5ex] 
+ \hline
+ \# of Reports Before 1980 & 0 (0\%) & 1 (.0483\%) & 10 (.4270\%) & 0 (0\%) \\ 
+ \hline
+\# of Reports Before 2000 & 0 (0\%) & 1 (.0483\%) & 11 (.4697\%) & 0 (0\%) \\
+\hline
+\# of Reports Before 2010 & 0 (0\%) & 1 (.0483\%) & 12 (.5124\%) & 0 (0\%) \\
+\hline
+\# of Reports Before Sep, 2019 & 0 (0\%) & 35 (1.6916\%) & 131 (5.5935\%) & 2 (13.3333\%) \\
+\hline
+Range of Dates & 2019 - 2020 & 1200 - 2020 & 515 - 2020 & 2015 - 2020 \\
+\hline
+\end{tabular}
+\end{center}
+
+
+
+\section{Data Limitations}
+
+
+
+
+
+
+
+\end{document}

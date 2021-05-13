@@ -1,0 +1,135 @@
+---
+title: "Scratch Work"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(ggmap)
+library(readxl)
+library(viridis)
+library(lubridate)
+```
+
+
+
+```{r}
+wasp_raw <- read_xlsx("input/2021MCMProblemC_DataSet.xlsx", na = "<Null>", col_types = c("text", "date", "text", "text",
+                                                                                         "text", "date", "numeric", "numeric"))
+head(wasp_raw)
+
+climate <- read.csv("climate_suitability_ratings.csv")
+```
+```{r}
+wasp <- wasp_raw %>% select(`Detection Date`, `Lab Status`, `Submission Date`, Latitude, Longitude)
+head(wasp)
+```
+
+```{r}
+wasp %>% filter(as.Date(`Detection Date`) > years(2019)) %>% ggplot(aes(`Detection Date`)) + geom_bar()
+```
+
+```{r}
+washington_boundaries <- c(right = -117, left = -125, bottom = 45.5, top = 50) #final
+washington_boundaries <- c(right = -122, left = -125, bottom = 46.5, top = 50)
+ggmap(get_stamenmap(washington_boundaries, maptype = "watercolor")) + 
+geom_point(data = wasp, mapping = aes(Longitude, Latitude, color = `Detection Date`)) # Could also be "terrain"
+```
+We see that there are a bunch of old detects, lets try filtering to try and gain a better insight
+```{r}
+wasp_recent <- wasp %>% filter(`Detection Date` >= ymd("2020-1-1"))
+ggmap(get_stamenmap(washington_boundaries, maptype = "terrain")) + 
+geom_point(data = wasp_recent, mapping = aes(Longitude, Latitude, color = as.Date(`Detection Date`)), alpha = 0.5) +
+  scale_color_viridis(trans = "date", option = "C")
+```
+
+```{r}
+wasp_confirmed <- wasp %>% filter(`Lab Status` == "Positive ID")
+
+washington_boundaries_pos <- c(right = -122.25, left = -124, bottom = 48.5, top = 49.5)
+
+ggmap(get_stamenmap(washington_boundaries_pos, maptype = "terrain")) + 
+  geom_point(data = wasp_confirmed, mapping = aes(Longitude, Latitude, color = as.Date(`Detection Date`))) +
+  scale_color_viridis(name = "Detection Date", trans = 'date', option = "B") + 
+  labs(title = "Plot of all Confirmed Cases Based on Detection Date",
+       x = "Longitude", y = "Latitude")
+```
+
+```{r}
+ggmap(get_stamenmap(washington_boundaries_pos, maptype = "terrain")) + 
+  geom_point(data = wasp, mapping = aes(Longitude, Latitude, color = `Lab Status`)) +
+  scale_color_manual(name = "Detection Date",
+                     breaks = c("Positive ID", "Negative ID", "Unverified", "Unprocessed"),
+                     values = c("dark red", "gold", "pink", "blue")) + 
+  labs(title = "Plot of all Cases in Area of Confirmed Cases",
+       x = "Longitude", y = "Latitude")
+```
+
+Heat map of where reports came from
+```{r}
+ggmap(get_stamenmap(washington_boundaries, maptype = "terrain")) +
+  geom_density2d_filled(data = wasp, aes(Longitude, Latitude), alpha = 0.5)
+```
+
+```{r}
+wasp_neg <- wasp %>% filter(`Lab Status` == "Negative ID")
+wasp_unknown <- wasp %>% filter(`Lab Status` == "Unverified")
+ggmap(get_stamenmap(washington_boundaries, maptype = "terrain")) +
+  geom_density2d_filled(data = wasp_neg, aes(Longitude, Latitude), alpha = 0.5) + 
+  labs(title = "Heat Map of Negative ID's")
+```
+
+```{r}
+ggmap(get_stamenmap(washington_boundaries, maptype = "terrain")) +
+  geom_density2d_filled(data = wasp_unknown, aes(Longitude, Latitude), alpha = 0.5) + 
+  labs(title = "Heat Map of Unknown ID")
+```
+
+```{r}
+ggmap(get_stamenmap(washington_boundaries, maptype = "terrain")) +
+  geom_density2d_filled(data = wasp, aes(Longitude, Latitude), alpha = 0.5, contour_var = "ndensity") +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+        axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        legend.position="none") + 
+  facet_wrap(~ `Lab Status`) 
+```
+
+```{r}
+
+ggmap(get_stamenmap(c(right = -117, left = -125, bottom = 45.5, top = 50), maptype = "terrain")) +
+  geom_density2d_filled(data = wasp, aes(Longitude, Latitude), alpha = 0.5, contour_var = "ndensity") +
+  labs(title = "Heat Maps of Wasp Locations Separated by Lab Status") +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+        axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        legend.position="none", plot.title = element_text(hjust = 0.5)) +
+  facet_wrap(~ `Lab Status`)
+```
+
+Trying to separate by month
+
+```{r}
+wasp %>% mutate(mon = factor(month.abb[month(`Detection Date`)], levels = c(month.abb[3:12], month.abb[1:2]))) %>% ggplot(aes(mon)) + geom_bar()
+```
+
+```{r}
+wasp %>% mutate(mon = factor(month.abb[month(`Detection Date`)], levels = c(month.abb[3:12], month.abb[1:2]))) %>% ggplot(aes(mon, fill = mon)) + geom_bar() + facet_wrap(~ `Lab Status`) + 
+  theme_minimal() + 
+  scale_fill_viridis(discrete = T) + 
+  labs(title = "Bar Chart of Each Identification Type based on Month",
+       x = "Month",
+       y = "Reports per Month")
+```
+
+```{r}
+ggmap(get_stamenmap(c(right = -117, left = -125, bottom = 45.5, top = 50), maptype = "terrain")) +
+  geom_point(data = climate, aes(x, y, color = Climate_Suitability)) +
+  scale_color_viridis() + 
+  labs(title = "Suitable Wasp Living Locations", color = "Climate Suitability") +
+    theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+        axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        plot.title = element_text(hjust = 0.5))
+```
+
